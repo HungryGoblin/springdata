@@ -5,6 +5,7 @@ import org.springframework.web.bind.annotation.*;
 import ru.geekbrains.spring.springdata.model.Product;
 import ru.geekbrains.spring.springdata.services.ProductService;
 
+
 import java.util.List;
 
 @RestController
@@ -18,11 +19,6 @@ public class ProductController {
     public List<Product> getAll() {
         return productService.getAll();
     }
-
-//    @GetMapping("/price")
-//    public List<Product> getAll(@RequestParam Integer first, @RequestParam Integer second) {
-//        return productService.getAllByScore(first, second);
-//    }
 
     @GetMapping("/{id}")
     public Product getById(@PathVariable Long id) {
@@ -43,5 +39,24 @@ public class ProductController {
     public void delete(@PathVariable Long id) {
         productService.delete(id);
     }
+
+    // http://localhost:8189/geek/product/filter?min=300&max=500
+    @GetMapping("/filter")
+    public List<Product> getAll(@RequestParam Integer min, @RequestParam Integer max) {
+        return productService.getFiltered(min, max);
+    }
+
+    // http://localhost:8189/geek/product/pricege?from=300
+    @GetMapping("/pricege")
+    public List<Product> getPriceFrom(@RequestParam Integer from) {
+        return productService.getPriceFrom(from);
+    }
+
+    // http://localhost:8189/geek/product/pricele?to=300
+    @GetMapping("/pricele")
+    public List<Product> getPriceTo(@RequestParam Integer to) {
+        return productService.getPriceTo(to);
+    }
+
 
 }

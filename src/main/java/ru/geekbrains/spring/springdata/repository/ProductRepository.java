@@ -14,4 +14,10 @@ public interface ProductRepository extends JpaRepository<Product, Long> {
 
     @Query("select s from Product s where s.id = :id")
     List<Product> customProductQuery(int id);
+
+    List<Product> findAllByPriceBetween(int min, int max);
+
+    List<Product> findAllByPriceAfter(int from);
+
+    List<Product> findAllByPriceBefore(int to);
 }
