@@ -3,6 +3,7 @@ package ru.geekbrains.spring.springdata.controller;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 import ru.geekbrains.spring.springdata.model.Product;
+import ru.geekbrains.spring.springdata.model.SortDirection;
 import ru.geekbrains.spring.springdata.services.ProductService;
 
 
@@ -31,7 +32,7 @@ public class ProductController {
     }
 
     @PostMapping
-        public Product add(@RequestBody Product product) {
+    public Product add(@RequestBody Product product) {
         return productService.add(product);
     }
 
@@ -58,5 +59,46 @@ public class ProductController {
         return productService.getPriceTo(to);
     }
 
+    @GetMapping("/find")
+    public List<Product> getBYNamSortDirection(@RequestParam Integer to) {
+        return productService.getPriceTo(to);
+    }
+
+    private static final int DEFAULT_PAGE_SIZE = 10;
+    // http://localhost:8189/geek/product/paged?page=2&size=3
+    @GetMapping("paged")
+    public List<Product> getAllPaged(
+            @RequestParam Integer page,
+            @RequestParam Integer size) {
+        if (page == null || page <= 0) page = 1;
+        if (size == null || size <= 0) size = DEFAULT_PAGE_SIZE;
+        return productService.getAllPaged(page, size);
+    }
+
+    // http://localhost:8189/geek/product/byprice
+    @GetMapping("/byprice")
+    public List<Product> getAllByPrice() {
+        return productService.getAllByPrice(SortDirection.ASC);
+    }
+
+    // http://localhost:8189/geek/product/bypricedesc
+    @GetMapping("/bypricedesc")
+    public List<Product> getAllByPriceDesc() {
+        return productService.getAllByPrice(SortDirection.DESC);
+    }
+
+    // http://localhost:8189/geek/product/sorted?byPrice=true&byName=false
+    @GetMapping("sorted")
+    public List<Product> getSorted(
+            @RequestParam Boolean byPrice,
+            @RequestParam Boolean byName) {
+        SortDirection sortByPrice;
+        SortDirection sortByName;
+        if (byPrice == null || byPrice) sortByPrice = SortDirection.ASC;
+        else sortByPrice = SortDirection.DESC;
+        if (byName == null || byName) sortByName = SortDirection.ASC;
+        else sortByName = SortDirection.DESC;
+        return productService.getSorted(sortByPrice, sortByName);
+    }
 
 }
