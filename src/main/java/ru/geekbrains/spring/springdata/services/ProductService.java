@@ -5,21 +5,21 @@ import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import ru.geekbrains.spring.springdata.exceptions.BadRequestException;
 import ru.geekbrains.spring.springdata.model.Product;
 import ru.geekbrains.spring.springdata.model.SortDirection;
 import ru.geekbrains.spring.springdata.repository.ProductRepository;
 
+import javax.persistence.criteria.Order;
+import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 
 @Service
 public class ProductService {
 
     @Autowired
     private ProductRepository productRepository;
-
-//    public List<Product> getAll() {
-//        return productRepository.findAll();
-//    }
 
     @Transactional
     public List<Product> getAll() {
@@ -39,12 +39,16 @@ public class ProductService {
     }
 
     @Transactional
-    public List<Product> getSorted (SortDirection byPrice, SortDirection byName) {
-        /*
-        как-то нужно сделать динамический запрос
-        CriteriaBuilder & CriteriaQuery ?
-        */
-        return productRepository.findAll(Sort.by("price").ascending());
+    public List<Product> getAllSorted(Map<String, String> sortParams) {
+        List<Product> productList;
+        try {
+            List<Sort.Order> sortOrder = new ArrayList<>();
+            sortParams.forEach((key, value) -> sortOrder.add(new Sort.Order(Sort.Direction.valueOf(value), key)));
+            productList = productRepository.findAll(Sort.by(sortOrder));
+        } catch (RuntimeException e) {
+            throw new BadRequestException(String.format("Sorted request error: %s", e.getMessage()));
+        }
+        return productList;
     }
 
     public Product getById(Long id) {
