@@ -8,18 +8,23 @@ import org.springframework.transaction.annotation.Transactional;
 import ru.geekbrains.spring.springdata.exceptions.BadRequestException;
 import ru.geekbrains.spring.springdata.model.Product;
 import ru.geekbrains.spring.springdata.model.SortDirection;
+import ru.geekbrains.spring.springdata.model.dtos.ProductDto;
+import ru.geekbrains.spring.springdata.model.mappers.DtoMapper;
 import ru.geekbrains.spring.springdata.repository.ProductRepository;
 
-import javax.persistence.criteria.Order;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 
 @Service
 public class ProductService {
 
     @Autowired
     private ProductRepository productRepository;
+
+    @Autowired
+    private DtoMapper dtoMapper;
 
     @Transactional
     public List<Product> getAll() {
@@ -55,27 +60,28 @@ public class ProductService {
         return productRepository.findById(id).get();
     }
 
-    public Product getByName(String name) {
-        return productRepository.findProductByName(name);
+    public Optional<ProductDto> getByIdDto(Long id) {
+        return productRepository.findById(id).map(ProductDto::new);
     }
 
-    public Product add(Product product) {
-        return productRepository.save(product);
+    public Product getByName(String name) {
+        return productRepository.findProductByName(name).get();
+    }
+
+    public Optional<ProductDto> getByNameDto(String name) {
+        return productRepository.findProductByName(name).map(ProductDto::new);
+    }
+
+    public Optional<ProductDto> getFilteredByPrice(int min, int max) {
+        return productRepository.findAllByPriceBetween(min, max).map(ProductDto::new);
+    }
+
+    public Optional<ProductDto> add(ProductDto product) {
+        return Optional.of(dtoMapper.toDto(productRepository.save(dtoMapper.toEntity(product))));
     }
 
     public void delete(Long id) {
         productRepository.deleteById(id);
     }
 
-    public List<Product> getFiltered(int min, int max) {
-        return productRepository.findAllByPriceBetween(min, max);
-    }
-
-    public List<Product> getPriceTo(Integer to) {
-        return productRepository.findAllByPriceBefore(to);
-    }
-
-    public List<Product> getPriceFrom(Integer from) {
-        return productRepository.findAllByPriceAfter(from);
-    }
 }

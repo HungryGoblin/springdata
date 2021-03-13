@@ -4,17 +4,20 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.server.ResponseStatusException;
+import ru.geekbrains.spring.springdata.exceptions.BadRequestException;
+import ru.geekbrains.spring.springdata.exceptions.ResourceNotFoundException;
 import ru.geekbrains.spring.springdata.model.Product;
 import ru.geekbrains.spring.springdata.model.SortDirection;
+import ru.geekbrains.spring.springdata.model.dtos.ProductDto;
 import ru.geekbrains.spring.springdata.services.ProductService;
 
 
-import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
 @RestController
-@RequestMapping("/product")
+@RequestMapping("/api/v1/products")
+
 public class ProductController {
 
     @Autowired
@@ -25,19 +28,10 @@ public class ProductController {
         return productService.getAll();
     }
 
-    @GetMapping("/{id}")
-    public Product getById(@PathVariable Long id) {
-        return productService.getById(id);
-    }
-
-    @GetMapping("/name")
-    public Product getByName(@RequestParam String name) {
-        return productService.getByName(name);
-    }
-
-    @PostMapping
-    public Product add(@RequestBody Product product) {
-        return productService.add(product);
+    // http://localhost:8189/geek/api/v1/products/add
+    @PostMapping("/add")
+    public ProductDto add(@RequestBody ProductDto product) {
+        return productService.add(product).orElseThrow(() -> new BadRequestException("Can't add product"));
     }
 
     @DeleteMapping("/del/{id}")
@@ -45,27 +39,25 @@ public class ProductController {
         productService.delete(id);
     }
 
-    // http://localhost:8189/geek/product/filter?min=300&max=500
+    // http://localhost:8189/geek/api/v1/1
+    @GetMapping("/{id}")
+    public ProductDto findProductById(@PathVariable Long id) {
+        return productService.getByIdDto(id).orElseThrow(() -> new ResourceNotFoundException(
+                        String.format("Product with id: %d doesn't exist", id)));
+    }
+
+    // http://localhost:8189/geek/api/v1/products/name/Iphone X
+    @GetMapping("/name/{name}")
+    public ProductDto getByName(@PathVariable String name) {
+        return productService.getByNameDto(name).orElseThrow(() -> new ResourceNotFoundException(
+                String.format("Product with name: '%s' doesn't exist", name)));
+    }
+
+    // http://localhost:8189/geek/api/v1/products/filter?min=300&max=500
     @GetMapping("/filter")
-    public List<Product> getAll(@RequestParam Integer min, @RequestParam Integer max) {
-        return productService.getFiltered(min, max);
-    }
-
-    // http://localhost:8189/geek/product/pricege?from=300
-    @GetMapping("/pricege")
-    public List<Product> getPriceFrom(@RequestParam Integer from) {
-        return productService.getPriceFrom(from);
-    }
-
-    // http://localhost:8189/geek/product/pricele?to=300
-    @GetMapping("/pricele")
-    public List<Product> getPriceTo(@RequestParam Integer to) {
-        return productService.getPriceTo(to);
-    }
-
-    @GetMapping("/find")
-    public List<Product> getBYNamSortDirection(@RequestParam Integer to) {
-        return productService.getPriceTo(to);
+    public ProductDto getAll(@RequestParam Integer min, @RequestParam Integer max) {
+        return productService.getFilteredByPrice(min, max).orElseThrow(() -> new ResourceNotFoundException(
+                String.format("Products with price %d to %d are not available", min, max)));
     }
 
     private static final int DEFAULT_PAGE_SIZE = 10;
@@ -91,7 +83,7 @@ public class ProductController {
         return productService.getAllByPrice(SortDirection.DESC);
     }
 
-    // http://localhost:8189/geek/product/sorted?name=ASC&cost=DESC
+    // http://localhost:8189/geek/product/sorted?name=ASC&price=DESC
     @GetMapping("/sorted")
     public List<Product> getAllSorted(@RequestParam Map<String, String> params) {
         List<Product> productList;
