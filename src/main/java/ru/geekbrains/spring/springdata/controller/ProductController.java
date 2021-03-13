@@ -1,13 +1,17 @@
 package ru.geekbrains.spring.springdata.controller;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.server.ResponseStatusException;
 import ru.geekbrains.spring.springdata.model.Product;
 import ru.geekbrains.spring.springdata.model.SortDirection;
 import ru.geekbrains.spring.springdata.services.ProductService;
 
 
+import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 
 @RestController
 @RequestMapping("/product")
@@ -87,18 +91,16 @@ public class ProductController {
         return productService.getAllByPrice(SortDirection.DESC);
     }
 
-    // http://localhost:8189/geek/product/sorted?byPrice=true&byName=false
-    @GetMapping("sorted")
-    public List<Product> getSorted(
-            @RequestParam Boolean byPrice,
-            @RequestParam Boolean byName) {
-        SortDirection sortByPrice;
-        SortDirection sortByName;
-        if (byPrice == null || byPrice) sortByPrice = SortDirection.ASC;
-        else sortByPrice = SortDirection.DESC;
-        if (byName == null || byName) sortByName = SortDirection.ASC;
-        else sortByName = SortDirection.DESC;
-        return productService.getSorted(sortByPrice, sortByName);
+    // http://localhost:8189/geek/product/sorted?name=ASC&cost=DESC
+    @GetMapping("/sorted")
+    public List<Product> getAllSorted(@RequestParam Map<String, String> params) {
+        List<Product> productList;
+        try {
+            productList = productService.getAllSorted(params);
+        } catch (RuntimeException e) {
+            throw new ResponseStatusException(
+                    HttpStatus.BAD_REQUEST, e.getMessage(), e);
+        }
+        return productList;
     }
-
 }
