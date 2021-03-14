@@ -11,7 +11,7 @@ import org.springframework.web.bind.annotation.ExceptionHandler;
 public class ExceptionControllerAdvice {
 
     @ExceptionHandler
-    public ResponseEntity<?> handleResourceNotFoundException(BadRequestException e) {
+    public ResponseEntity<?> handleResourceNotFoundException(RequestException e) {
         log.error(e.getMessage());
         CommonException err = new CommonException(e.getMessage());
         return new ResponseEntity<>(err, HttpStatus.NOT_FOUND);

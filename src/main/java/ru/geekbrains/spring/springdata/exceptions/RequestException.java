@@ -1,8 +1,8 @@
 package ru.geekbrains.spring.springdata.exceptions;
 
-public class BadRequestException extends RuntimeException {
+public class RequestException extends RuntimeException {
 
-    public BadRequestException (String message) {
+    public RequestException(String message) {
         super (message);
     }
 
