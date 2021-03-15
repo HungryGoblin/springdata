@@ -4,7 +4,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 import ru.geekbrains.spring.springdata.model.dtos.ProductOrderDto;
 import ru.geekbrains.spring.springdata.model.mappers.DtoMapper;
-import ru.geekbrains.spring.springdata.services.ProductOrderService;
+import ru.geekbrains.spring.springdata.services.OrderService;
 
 import java.util.List;
 
@@ -14,7 +14,7 @@ import java.util.List;
 public class ProductOrderController {
 
     @Autowired
-    private ProductOrderService productOrderService;
+    private OrderService orderService;
 
     @Autowired
     private DtoMapper dtoMapper;
@@ -24,7 +24,7 @@ public class ProductOrderController {
     @GetMapping
     @ResponseBody
     public List<ProductOrderDto> getOrders() {
-        return dtoMapper.toProductOrderDtoList(productOrderService.getOrders());
+        return dtoMapper.toProductOrderDtoList(orderService.getOrder());
     }
 
     // http://localhost:8189/geek/api/v1/orders/add?id=1&number=3
@@ -33,7 +33,7 @@ public class ProductOrderController {
     public List<ProductOrderDto> addOrder(
             @RequestParam Long id,
             @RequestParam int number) {
-        return dtoMapper.toProductOrderDtoList(productOrderService.addProduct(id, number));
+        return dtoMapper.toProductOrderDtoList(orderService.addOrderItem(id, number));
     }
 
     // http://localhost:8189/geek/api/v1/orders/rem?id=1
@@ -41,7 +41,7 @@ public class ProductOrderController {
     @ResponseBody
     public List<ProductOrderDto> removeOrder(
             @RequestParam Long id) {
-        return dtoMapper.toProductOrderDtoList(productOrderService.removeProduct(id));
+        return dtoMapper.toProductOrderDtoList(orderService.removeOrderItem(id));
     }
 
 }

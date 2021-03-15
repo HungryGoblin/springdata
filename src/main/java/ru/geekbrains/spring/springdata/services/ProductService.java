@@ -10,7 +10,6 @@ import org.springframework.transaction.annotation.Transactional;
 import ru.geekbrains.spring.springdata.exceptions.RequestException;
 import ru.geekbrains.spring.springdata.model.Product;
 import ru.geekbrains.spring.springdata.model.SortDirection;
-import ru.geekbrains.spring.springdata.model.dtos.ProductDto;
 import ru.geekbrains.spring.springdata.model.mappers.DtoMapper;
 import ru.geekbrains.spring.springdata.repository.ProductRepository;
 

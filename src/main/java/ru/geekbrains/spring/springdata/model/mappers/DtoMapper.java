@@ -4,7 +4,7 @@ import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 import ru.geekbrains.spring.springdata.model.Product;
-import ru.geekbrains.spring.springdata.model.ProductOrder;
+import ru.geekbrains.spring.springdata.model.OrderItem;
 import ru.geekbrains.spring.springdata.model.dtos.ProductDto;
 import ru.geekbrains.spring.springdata.model.dtos.ProductOrderDto;
 
@@ -40,11 +40,11 @@ public class DtoMapper {
                 .collect(Collectors.toList());
     }
 
-    public ProductOrder toProductOrder(ProductOrderDto productOrder) {
-        return Objects.isNull(productOrder) ? null : modelMapper.map(productOrder, ProductOrder.class);
+    public OrderItem toProductOrder(ProductOrderDto productOrder) {
+        return Objects.isNull(productOrder) ? null : modelMapper.map(productOrder, OrderItem.class);
     }
 
-    public List<ProductOrderDto> toProductOrderDtoList(List<ProductOrder> orders) {
+    public List<ProductOrderDto> toProductOrderDtoList(List<OrderItem> orders) {
         return Objects.isNull(orders) ? null : orders
                 .stream()
                 .map(product -> modelMapper.map(product, ProductOrderDto.class))
