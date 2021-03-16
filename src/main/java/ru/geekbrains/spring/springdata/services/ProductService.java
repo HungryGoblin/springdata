@@ -1,25 +1,33 @@
 package ru.geekbrains.spring.springdata.services;
 
+import lombok.Data;
+import lombok.NoArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-import ru.geekbrains.spring.springdata.exceptions.BadRequestException;
+import ru.geekbrains.spring.springdata.exceptions.RequestException;
 import ru.geekbrains.spring.springdata.model.Product;
 import ru.geekbrains.spring.springdata.model.SortDirection;
+import ru.geekbrains.spring.springdata.model.mappers.DtoMapper;
 import ru.geekbrains.spring.springdata.repository.ProductRepository;
 
-import javax.persistence.criteria.Order;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 
 @Service
+@Data
+@NoArgsConstructor
 public class ProductService {
 
     @Autowired
     private ProductRepository productRepository;
+
+    @Autowired
+    private DtoMapper dtoMapper;
 
     @Transactional
     public List<Product> getAll() {
@@ -46,17 +54,21 @@ public class ProductService {
             sortParams.forEach((key, value) -> sortOrder.add(new Sort.Order(Sort.Direction.valueOf(value), key)));
             productList = productRepository.findAll(Sort.by(sortOrder));
         } catch (RuntimeException e) {
-            throw new BadRequestException(String.format("Sorted request error: %s", e.getMessage()));
+            throw new RequestException(String.format("Sorted request error: %s", e.getMessage()));
         }
         return productList;
     }
 
-    public Product getById(Long id) {
-        return productRepository.findById(id).get();
+    public Optional<Product> getById(Long id) {
+        return productRepository.findById(id);
     }
 
-    public Product getByName(String name) {
+    public Optional<Product> getByName(String name) {
         return productRepository.findProductByName(name);
+    }
+
+    public Optional<Product> getFilteredByPrice(int min, int max) {
+        return productRepository.findAllByPriceBetween(min, max);
     }
 
     public Product add(Product product) {
@@ -67,15 +79,4 @@ public class ProductService {
         productRepository.deleteById(id);
     }
 
-    public List<Product> getFiltered(int min, int max) {
-        return productRepository.findAllByPriceBetween(min, max);
-    }
-
-    public List<Product> getPriceTo(Integer to) {
-        return productRepository.findAllByPriceBefore(to);
-    }
-
-    public List<Product> getPriceFrom(Integer from) {
-        return productRepository.findAllByPriceAfter(from);
-    }
 }

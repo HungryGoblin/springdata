@@ -1,0 +1,22 @@
+package ru.geekbrains.spring.springdata;
+
+import org.modelmapper.ModelMapper;
+import org.modelmapper.convention.MatchingStrategies;
+import org.springframework.context.annotation.Bean;
+import org.springframework.context.annotation.Configuration;
+import ru.geekbrains.spring.springdata.controller.ProductController;
+
+@Configuration
+public class ProductAppConfig {
+
+    @Bean
+    public ModelMapper modelMapper() {
+        ModelMapper mapper = new ModelMapper();
+        mapper.getConfiguration()
+                .setMatchingStrategy(MatchingStrategies.STRICT)
+                .setFieldMatchingEnabled(true)
+                .setSkipNullEnabled(true);
+        return mapper;
+    }
+
+}
